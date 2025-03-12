@@ -2,3 +2,5 @@ env
 .python-version
 .env
 **/__pycache__/
+generated_sheets/
+.DS_Store

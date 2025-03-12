@@ -2,3 +2,5 @@ dotenv
 langchain-groq
 langchain
 pandas
+openpyxl
+fastapi[standard]
