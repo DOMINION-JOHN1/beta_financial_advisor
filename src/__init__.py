@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
+import os
 
 # from langchain_pipeline import run_budget_pipeline
 from src.langchain_pipeline import financial_planner, run_budget_pipeline
@@ -29,12 +30,16 @@ async def generate_budget(request: UserQuery):
         # Generate spreadsheet
         df_path = parse_csv_content(csv_output)
 
+        app_domain = os.getenv("APP_DOMAIN")
+
         # Response
         return JSONResponse(
             {
                 "message": "Budget generated successfully.",
                 "download_link": (
-                    f"/download/{df_path.split('/')[-1]}" if df_path else None
+                    f"{app_domain}/download/{df_path.split('/')[-1]}"
+                    if df_path
+                    else None
                 ),
                 "advice": advice,
             }
@@ -53,12 +58,16 @@ async def generate_budget2(request: UserQuery):
         # Generate spreadsheet
         file_path = generate_budget_spreadsheet(result_data)
 
+        app_domain = os.getenv("APP_DOMAIN")
+
         # Response
         return JSONResponse(
             {
                 "message": "Budget generated successfully.",
                 "download_link": (
-                    f"/download/{file_path.split('/')[-1]}" if file_path else None
+                    f"{app_domain}/download/{file_path.split('/')[-1]}"
+                    if file_path
+                    else None
                 ),
                 "advice": result_data["advice"].content,
             }
