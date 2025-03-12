@@ -1,0 +1,4 @@
+dotenv
+langchain-groq
+langchain
+pandas
