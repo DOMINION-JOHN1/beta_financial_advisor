@@ -28,39 +28,44 @@ json_parser = JsonOutputParser()
 ## Start of FIrst Implimentation
 
 # CSV Budget Generator
-csv_prompt = PromptTemplate(
-    template="""Convert this financial information into a CSV format:
-        
-        INCOME:
-        - List all income sources with amounts
-        EXPENSES:
-        - Categorize expenses with amounts
-        SAVINGS:
-        - Calculate suggested savings
-        
-        Input: {user_input}
-        
-        Format exactly like this:
-        Category,Item,Amount
-        Income,[source],[amount]
-        Expense,[category],[amount]
-        Savings,[type],[amount]
-        
-        Use only numbers (no currency symbols) and simple categories.""",
-    input_variables=["user_input"],
+csv_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a financial expert. Your job is to convert user inputs into a CSV format following the below outline;
+                INCOME:
+                - List all income sources with amounts
+                EXPENSES:
+                - Categorize expenses with amounts
+                SAVINGS:
+                - Calculate suggested savings
+                
+                Format exactly like this:
+                Category,Item,Amount
+                Income,[source],[amount]
+                Expense,[category],[amount]
+                Savings,[type],[amount]
+
+                Use only numbers (no currency symbols) and simple categories.
+                Please restrict your responses to what is provided in the input
+            """,
+        ),
+        ("human", "{user_input}"),
+    ]
 )
 
 # Financial Advice Generator
 advice_prompt = PromptTemplate(
-    template="""Provide concise financial advice for this situation:
-        {user_input}
-        
+    template="""Based on this situation: {user_input}, 
+        provide clear, actionable financial advice. Keep it concise.
+
         Focus on:
         - Budget optimization
         - Emergency funds
         - Debt management
         - Long-term savings
-        Use bullet points.""",
+        Use bullet points.
+        "Please restrict your responses to what is provided in the input""",
     input_variables=["user_input"],
 )
 
@@ -85,7 +90,8 @@ income_prompt = PromptTemplate.from_template(
     "Do NOT include any expenses, total income, savings, debts, or costs. "
     "ONLY list actual sources of money (like Job, Freelancing, etc). "
     "Respond ONLY in this JSON format (no explanation, no text before/after): "
-    '[{{"source": "Job", "amount": 4000}}, {{"source": "Freelancing", "amount": 500}}]'
+    "[{{'source': '...', 'amount': ...}}, {{'source': '...', 'amount': ...}}]"
+    "Please restrict your responses to what is provided in the input"
 )
 
 expenses_prompt = PromptTemplate.from_template(
@@ -93,7 +99,8 @@ expenses_prompt = PromptTemplate.from_template(
     "Do NOT include any income sources, total income, savings, or investments. "
     "Only include spending categories like Rent, Food, Subscriptions, etc. "
     "Respond ONLY in this JSON format (no explanation, no text before/after): "
-    '[{{"category": "Rent", "amount": 1200}}, {{"category": "Food", "amount": 400}}]'
+    "[{{'category': '...', 'amount': ...}}, {{'category': '...', 'amount': ...}}]"
+    "Please restrict your responses to what is provided in the input"
 )
 
 concerns_prompt = PromptTemplate.from_template(

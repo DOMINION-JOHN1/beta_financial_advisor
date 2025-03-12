@@ -1,11 +1,16 @@
 from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import FileResponse, JSONResponse
+from pydantic import BaseModel
 
 # from langchain_pipeline import run_budget_pipeline
-from src.langchain_pipeline import run_budget_pipeline
-from src.spreadsheet_generator import generate_budget_spreadsheet
+from src.langchain_pipeline import financial_planner, run_budget_pipeline
+from src.spreadsheet_generator import generate_budget_spreadsheet, parse_csv_content
 
 app = FastAPI(title="AI Budget Generator", version="1.0")
+
+
+class UserQuery(BaseModel):
+    user_input: str
 
 
 # Health check endpoint
@@ -16,10 +21,34 @@ def read_root():
 
 # Main budget generation endpoint
 @app.post("/generate-budget")
-async def generate_budget(user_input: str = Form(...)):
+async def generate_budget(request: UserQuery):
     try:
         # Process input through Langchain pipeline
-        result_data = run_budget_pipeline(user_input)
+        csv_output, advice = financial_planner(request.user_input)
+
+        # Generate spreadsheet
+        df_path = parse_csv_content(csv_output)
+
+        # Response
+        return JSONResponse(
+            {
+                "message": "Budget generated successfully.",
+                "download_link": (
+                    f"/download/{df_path.split('/')[-1]}" if df_path else None
+                ),
+                "advice": advice,
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/generate-budget2")
+async def generate_budget2(request: UserQuery):
+    try:
+        # Process input through Langchain pipeline
+        result_data = run_budget_pipeline(request.user_input)
 
         # Generate spreadsheet
         file_path = generate_budget_spreadsheet(result_data)
@@ -28,8 +57,10 @@ async def generate_budget(user_input: str = Form(...)):
         return JSONResponse(
             {
                 "message": "Budget generated successfully.",
-                "download_link": f"/download/{file_path.split('/')[-1]}",
-                "advice": result_data["advice"]["content"],
+                "download_link": (
+                    f"/download/{file_path.split('/')[-1]}" if file_path else None
+                ),
+                "advice": result_data["advice"].content,
             }
         )
 

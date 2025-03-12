@@ -11,9 +11,11 @@ if __name__ == "__main__":
 
     csv_output, advice = financial_planner(input_text)
 
+    print("\n=== FINANCIAL ADVICE ===")
+    print(advice)
+
     df = parse_csv_content(csv_output)
+
     # Display the DataFrame
     print("=== BUDGET CSV ===")
     print(df)
-    print("\n=== FINANCIAL ADVICE ===")
-    print(advice)
