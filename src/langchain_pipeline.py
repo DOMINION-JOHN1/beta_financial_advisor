@@ -104,7 +104,7 @@ expenses_prompt = PromptTemplate.from_template(
 )
 
 concerns_prompt = PromptTemplate.from_template(
-    "Extract user's financial concerns and goals from this input: {input}. "
+    "From this input: {input}, extract financial concerns and goals "
     "Respond only as plain text."
 )
 
