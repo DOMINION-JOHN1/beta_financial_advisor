@@ -6,7 +6,7 @@ import pandas as pd
 from io import StringIO
 
 
-def parse_csv_content(content):
+def parse_csv_content(content, output_dir="generated_sheets"):
     try:
         # Split the content by double newlines to separate sections
         sections = content.split("\n\n")
@@ -33,8 +33,10 @@ def parse_csv_content(content):
 
         # File name
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path = f"generated_sheets/Budget_{timestamp}.csv"
+        file_path = f"{output_dir}/Budget_{timestamp}.csv"
         df.to_csv(file_path)
+        # file_path = f"{output_dir}/Budget_{timestamp}.xlsx"
+        # df.to_excel(file_path)
         return file_path
     except:
         print(f"Error while generating csv")
@@ -95,6 +97,6 @@ def generate_budget_spreadsheet(data, output_dir="generated_sheets"):
             df_advice.to_excel(writer, sheet_name="Advice", index=False)
 
         return file_path
-    except:
-        print(f"Error while generating spreadsheet")
+    except Exception as e:
+        print(f"Error while generating spreadsheet", e)
         return None
